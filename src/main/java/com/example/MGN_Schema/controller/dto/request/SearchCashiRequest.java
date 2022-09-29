@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateMgniRequest {
-    private String status;
+public class SearchCashiRequest {
+    private String mgniId;
+    private String accNo;
+    private String ccy;
 }

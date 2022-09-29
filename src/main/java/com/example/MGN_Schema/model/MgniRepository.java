@@ -6,11 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
 public interface MgniRepository extends JpaRepository<Mgni, String> , JpaSpecificationExecutor<Mgni> {
 
     @Query(value = "select * from MGNI where MGNI_ID =?1",nativeQuery = true)
-    Mgni getMgniById(String id);
+    Mgni findMgniById(String id);
 }

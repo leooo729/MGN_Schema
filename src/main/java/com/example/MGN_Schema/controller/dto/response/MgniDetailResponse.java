@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@XmlRootElement(name = "mgniList")
+@XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MgniDetailResponse {
     List<Mgni> mgniList;

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -52,4 +53,8 @@ public class Mgni {
     @LastModifiedDate
     @Column(name = "MGNI_U_TIME")
     private LocalDateTime uTime;
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "CASHI_MGNI_ID")
+    private List<Cashi> cashiList;
 }
