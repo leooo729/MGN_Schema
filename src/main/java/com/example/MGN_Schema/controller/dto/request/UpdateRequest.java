@@ -11,5 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UpdateRequest {
     private String id;
-    private DepositMoneyRequest request;
+    private DepositRequest request;
 }

@@ -6,6 +6,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,11 +20,14 @@ import java.util.List;
 @Entity
 @Table(name = "MGNI")
 @EntityListeners(AuditingEntityListener.class)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Mgni {
     @Id
     @Column(name = "MGNI_ID")
     private String id;
+
     @CreatedDate
+    @XmlJavaTypeAdapter(DateAdapter.class)
     @Column(name = "MGNI_TIME")
     private LocalDateTime time;
     @Column(name = "MGNI_TYPE")
@@ -51,10 +57,12 @@ public class Mgni {
     @Column(name = "MGNI_STATUS")
     private String status;
     @LastModifiedDate
+    @XmlJavaTypeAdapter(DateAdapter.class)
     @Column(name = "MGNI_U_TIME")
     private LocalDateTime uTime;
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinColumn(name = "CASHI_MGNI_ID")
     private List<Cashi> cashiList;
+
 }

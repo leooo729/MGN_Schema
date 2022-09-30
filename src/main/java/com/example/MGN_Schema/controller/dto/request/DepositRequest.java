@@ -1,6 +1,6 @@
 package com.example.MGN_Schema.controller.dto.request;
 
-import com.example.MGN_Schema.controller.dto.response.CashiAccAmt;
+import com.example.MGN_Schema.model.entity.CashiAccAmt;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,18 +14,20 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepositMoneyRequest {
+public class DepositRequest {
 //        private String id;
 //        private LocalDateTime time;
 //        @NotEmpty
 //        @Pattern(regexp = "^$|(1)",message = "請輸入代碼：1(入金)")
 //        private String type;
         @NotEmpty
+        @Pattern(regexp = "^$|[A-Za-z0-9]{0,7}",message = "代碼長度上限為 7")
         private String cmNo;
         @NotEmpty
         @Pattern(regexp = "^$|[12]",message = "請輸入代碼：1 or 2")
         private String kacType;
         @NotEmpty
+        @Pattern(regexp = "^$|[0-9]{3}",message = "代碼長度只能為 3")
         private String bankNo;
         @NotEmpty
         @Pattern(regexp = "^$|(TWD|USD)",message = "請輸入 TWD or USD")
@@ -33,6 +35,8 @@ public class DepositMoneyRequest {
         @NotEmpty
         @Pattern(regexp = "^$|[12]",message = "請輸入代碼：1 or 2")
         private String pvType;
+        @NotEmpty
+        @Pattern(regexp = "^$|[0-9]{0,21}",message = "代碼長度上限為 21")
         private String bicaccNo;
         @NotEmpty
         private List<CashiAccAmt> accAmt;
@@ -42,8 +46,11 @@ public class DepositMoneyRequest {
         //private String pReason;
         //private BigDecimal amt;
         @NotEmpty
+        @Pattern(regexp = "^$|[A-Za-z\\u4e00-\\u9fa5]{0,120}",message = "代碼長度上限為 120")
         private String ctName;
+
         @NotEmpty
+        @Pattern(regexp = "^$|[0-9]{0,30}",message = "代碼長度上限為 21")
         private String ctTel;
         //private String status;
         //private String uTime;
