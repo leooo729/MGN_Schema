@@ -113,7 +113,7 @@ public class TransferService {
     }
 
     public StatusResponse deleteMgni(String id) {
-        cashiRepository.deleteCashiById(id);
+//        cashiRepository.deleteCashiById(id);
         mgniRepository.deleteById(id);
         return new StatusResponse("刪除成功");
     }

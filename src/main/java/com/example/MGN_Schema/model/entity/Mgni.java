@@ -61,8 +61,8 @@ public class Mgni {
     @Column(name = "MGNI_U_TIME")
     private LocalDateTime uTime;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinColumn(name = "CASHI_MGNI_ID")
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "mgniId",fetch = FetchType.EAGER)
+//    @JoinColumn(name = "CASHI_MGNI_ID")
     private List<Cashi> cashiList;
 
 }
