@@ -12,7 +12,7 @@ import javax.validation.constraints.Pattern;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CashiPKRequest {
+public class DeleteCashiRequest {
     @NotEmpty
     @Pattern(regexp = "^$|(MGI[0-9]{17})",message = "ID格式請輸入：GMI + 17位數字")
     private String mgniId;

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateRequest {
+public class UpdateMgniRequest {
     private String id;
     private DepositRequest request;
 }

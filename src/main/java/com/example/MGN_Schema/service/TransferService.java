@@ -1,7 +1,7 @@
 package com.example.MGN_Schema.service;
 
 import com.example.MGN_Schema.controller.dto.request.DepositRequest;
-import com.example.MGN_Schema.controller.dto.request.CashiPKRequest;
+import com.example.MGN_Schema.controller.dto.request.DeleteCashiRequest;
 import com.example.MGN_Schema.controller.dto.request.SearchMgniRequest;
 import com.example.MGN_Schema.controller.dto.request.UpdateCashiRequest;
 import com.example.MGN_Schema.model.entity.CashiAccAmt;
@@ -37,24 +37,30 @@ public class TransferService {
     final private CashiRepository cashiRepository;
 
 
-    public MgniDetailResponse getAllMgni() {
+    public MgniDetailResponse getAllMgni() throws Exception {
+        checkMgniExist();
         MgniDetailResponse response = new MgniDetailResponse();
         response.setMgniList(mgniRepository.findAll(Sort.by(Sort.Direction.DESC, "id")));
         return response;
     }
 
-    public StatusResponse createMgni(DepositRequest request) {
+    public Mgni createMgni(DepositRequest request) throws Exception {
         Mgni mgni = new Mgni();
         mgni.setId("MGI" + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()));
 
+        if (mgniRepository.findMgniById(mgni.getId()) != null) {
+            throw new Exception("此ID已存在");
+        }
         mgni = setDepositInfo(mgni, request);
 
         mgniRepository.save(mgni);
 
-        return new StatusResponse("儲存成功");
+        return mgni;
     }
 
-    public Mgni updateCashi(UpdateCashiRequest request) {
+    public Mgni updateCashi(UpdateCashiRequest request) throws Exception {
+        checkCashiExist(request.getMgniId(), request.getAccNo(), request.getCcy());
+
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashi.setAmt(request.getAmt());
         cashiRepository.save(cashi);
@@ -67,22 +73,24 @@ public class TransferService {
     }
 
 
-    public StatusResponse updateMgni(String id, DepositRequest request) {
+    public Mgni updateMgni(String id, DepositRequest request) throws Exception {
+        checkMgniExist(id);
         Mgni mgni = mgniRepository.findMgniById(id);
         mgni = setDepositInfo(mgni, request);
         mgniRepository.save(mgni);
-        return new StatusResponse("更新成功");
+        return mgni;
     }
 
-    public List<Mgni> searchTargetMgni(SearchMgniRequest request, String page) {
-        Specification<Mgni> specification = new Specification<Mgni>() {
-            @Override
-            public Predicate toPredicate(Root<Mgni> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                Path<Object> id = root.get("id");
-                Path<Object> kacType = root.get("kacType");
-                Path<Object> ccy = root.get("ccy");
 
-                List<Predicate> filteredList = new ArrayList<>();
+    public List<Mgni> searchTargetMgni(SearchMgniRequest request, String page) throws Exception {
+        Specification<Mgni> specification = new Specification<Mgni>() { //創建一匿名類Specification接口
+            @Override // root from Mgni ,取得要篩選的列 // CriteriaBuilder 用來設置條件
+            public Predicate toPredicate(Root<Mgni> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Path<String> id = root.get("id");
+                Path<String> kacType = root.get("kacType");
+                Path<String> ccy = root.get("ccy");
+
+                List<Predicate> filteredList = new ArrayList<>(); //條件放進List
 
                 if (request.getId() != null) {
                     filteredList.add(cb.equal(id, request.getId()));
@@ -93,17 +101,22 @@ public class TransferService {
                 if (request.getCcy() != null) {
                     filteredList.add(cb.equal(ccy, request.getCcy()));
                 }
-                Predicate resultList = cb.and(filteredList.toArray((new Predicate[filteredList.size()])));
+                Predicate resultList = cb.and(filteredList.toArray((new Predicate[filteredList.size()]))); //拼接條件
 
+//                CriteriaBuilder.In<String> in = cb.in(ccy);
+//                in.value("ccy");
                 return resultList;
             }
         };
         Pageable pageable = PageRequest.of(Integer.parseInt(page) - 1, 2);
         Page<Mgni> mgniList = mgniRepository.findAll(specification, pageable);
+        checkMgniExist();
+
         return mgniList.getContent();
     }
 
-    public Mgni deleteCashi(CashiPKRequest request) {
+    public Mgni deleteCashi(DeleteCashiRequest request) throws Exception {
+        checkCashiExist(request.getMgniId(), request.getAccNo(), request.getCcy());
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashiRepository.delete(cashi);
         Mgni mgni = mgniRepository.findMgniById(request.getMgniId());
@@ -112,14 +125,15 @@ public class TransferService {
         return mgniRepository.findMgniById(request.getMgniId());
     }
 
-    public StatusResponse deleteMgni(String id) {
+    public StatusResponse deleteMgni(String id) throws Exception {
+        checkMgniExist(id);
 //        cashiRepository.deleteCashiById(id);
         mgniRepository.deleteById(id);
         return new StatusResponse("刪除成功");
     }
 
     //----------------------------------------------------------------Method
-    private Mgni setDepositInfo(Mgni mgni, DepositRequest request) {
+    private Mgni setDepositInfo(Mgni mgni, DepositRequest request) throws Exception {
         if (mgniRepository.findMgniById(mgni.getId()) != null) {
             cashiRepository.deleteCashiById(mgni.getId());
         }
@@ -137,6 +151,10 @@ public class TransferService {
         mgni.setStatus("1");
 
         List<String> accList = request.getAccAmt().stream().map(m -> m.getAcc()).distinct().collect(Collectors.toList());
+
+        if (request.getKacType().equals("2") && accList.size() > 1) {
+            throw new Exception("存入保管專戶別為交割結算基金專戶時，只能存入一筆總金額");
+        }
         BigDecimal totalAmt = new BigDecimal(0);
 
 //        List<Cashi> a = new ArrayList<>();
@@ -175,7 +193,30 @@ public class TransferService {
         return amt;
     }
 
+    //----------------------------------------------------------------Check
+
+    private Boolean checkMgniExist() throws Exception {
+        if (mgniRepository.findAll() == null) {
+            throw new Exception("資料庫無符合資料");
+        }
+        return true;
+    }
+
+    private Boolean checkMgniExist(String id) throws Exception {
+        if (mgniRepository.findMgniById(id) == null) {
+            throw new Exception("此ID不存在");
+        }
+        return true;
+    }
+
+    private Boolean checkCashiExist(String id, String accNo, String ccy) throws Exception {
+        if (cashiRepository.findTargetCashi(id, accNo, ccy) == null) {
+            throw new Exception("資料庫無符合資料");
+        }
+        return true;
+    }
 }
+
 
 //    public Cashi searchTargetCashi(CashiPKRequest request) {
 //        Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
