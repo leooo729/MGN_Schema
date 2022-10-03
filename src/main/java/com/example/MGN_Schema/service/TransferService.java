@@ -4,8 +4,9 @@ import com.example.MGN_Schema.controller.dto.request.DepositRequest;
 import com.example.MGN_Schema.controller.dto.request.DeleteCashiRequest;
 import com.example.MGN_Schema.controller.dto.request.SearchMgniRequest;
 import com.example.MGN_Schema.controller.dto.request.UpdateCashiRequest;
+import com.example.MGN_Schema.controller.dto.response.DeleteResponse;
 import com.example.MGN_Schema.model.entity.CashiAccAmt;
-import com.example.MGN_Schema.controller.dto.response.MgniDetailResponse;
+import com.example.MGN_Schema.controller.dto.response.MgniListResponse;
 import com.example.MGN_Schema.controller.dto.response.StatusResponse;
 import com.example.MGN_Schema.model.CashiRepository;
 import com.example.MGN_Schema.model.MgniRepository;
@@ -37,9 +38,9 @@ public class TransferService {
     final private CashiRepository cashiRepository;
 
 
-    public MgniDetailResponse getAllMgni() throws Exception {
+    public MgniListResponse getAllMgni() throws Exception {
         checkMgniExist();
-        MgniDetailResponse response = new MgniDetailResponse();
+        MgniListResponse response = new MgniListResponse();
         response.setMgniList(mgniRepository.findAll(Sort.by(Sort.Direction.DESC, "id")));
         return response;
     }
@@ -52,10 +53,10 @@ public class TransferService {
             throw new Exception("此ID已存在");
         }
         mgni = setDepositInfo(mgni, request);
-
+;
         mgniRepository.save(mgni);
 
-        return mgni;
+        return mgniRepository.findMgniById(mgni.getId());
     }
 
     public Mgni updateCashi(UpdateCashiRequest request) throws Exception {
@@ -63,7 +64,7 @@ public class TransferService {
 
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashi.setAmt(request.getAmt());
-        cashiRepository.save(cashi);
+//        cashiRepository.save(cashi);
 
         Mgni mgni = mgniRepository.findMgniById(request.getMgniId());
         mgni.setAmt(countAmt(mgni.getCashiList()));
@@ -115,14 +116,19 @@ public class TransferService {
         return mgniList.getContent();
     }
 
-    public Mgni deleteCashi(DeleteCashiRequest request) throws Exception {
+    public DeleteResponse deleteCashi(DeleteCashiRequest request) throws Exception {
         checkCashiExist(request.getMgniId(), request.getAccNo(), request.getCcy());
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashiRepository.delete(cashi);
+        if(cashiRepository.findCashiListById(request.getMgniId()).isEmpty()){
+            mgniRepository.deleteById(request.getMgniId());
+            return new DeleteResponse("Cashi已全部刪除，無資料",null);
+        }
         Mgni mgni = mgniRepository.findMgniById(request.getMgniId());
         mgni.setAmt(countAmt(mgni.getCashiList()));
+
         mgniRepository.save(mgni);
-        return mgniRepository.findMgniById(request.getMgniId());
+        return new DeleteResponse("刪除成功",mgniRepository.findMgniById(request.getMgniId()));
     }
 
     public StatusResponse deleteMgni(String id) throws Exception {
@@ -157,7 +163,7 @@ public class TransferService {
         }
         BigDecimal totalAmt = new BigDecimal(0);
 
-//        List<Cashi> a = new ArrayList<>();
+        List<Cashi> cashiList= new ArrayList<>();
         for (String targetAcc : accList) {
             BigDecimal amt = new BigDecimal(0);
             for (CashiAccAmt cashiAccAmt : request.getAccAmt()) {
@@ -166,11 +172,11 @@ public class TransferService {
                 }
             }
             Cashi cashi = setCashiInfo(mgni, targetAcc, amt);
-//            a.add(cashi);
-            cashiRepository.save(cashi);
+            cashiList.add(cashi);
+//            cashiRepository.save(cashi);
             totalAmt = totalAmt.add(amt);
         }
-//        mgni.setCashiList(a);
+        mgni.setCashiList(cashiList);
         mgni.setAmt(totalAmt);
 
         return mgni;
@@ -196,7 +202,7 @@ public class TransferService {
     //----------------------------------------------------------------Check
 
     private Boolean checkMgniExist() throws Exception {
-        if (mgniRepository.findAll() == null) {
+        if (mgniRepository.findAll().isEmpty()) {
             throw new Exception("資料庫無符合資料");
         }
         return true;

@@ -1,7 +1,8 @@
 package com.example.MGN_Schema.controller;
 
 import com.example.MGN_Schema.controller.dto.request.*;
-import com.example.MGN_Schema.controller.dto.response.MgniDetailResponse;
+import com.example.MGN_Schema.controller.dto.response.DeleteResponse;
+import com.example.MGN_Schema.controller.dto.response.MgniListResponse;
 import com.example.MGN_Schema.controller.dto.response.StatusResponse;
 import com.example.MGN_Schema.model.entity.Mgni;
 import com.example.MGN_Schema.service.TransferService;
@@ -21,9 +22,9 @@ import java.util.List;
 public class TransferController {
     private final TransferService transferService;
 
-    @GetMapping(produces = {"application/xml"})
-    public MgniDetailResponse getAllMgni() throws Exception {
-        MgniDetailResponse response = transferService.getAllMgni();
+    @GetMapping(produces = {"application/xml","application/json"})
+    public MgniListResponse getAllMgni() throws Exception {
+        MgniListResponse response = transferService.getAllMgni();
         return response;
     }
 
@@ -55,9 +56,9 @@ public class TransferController {
     }
 
     @DeleteMapping("/cashi")
-    public Mgni deleteCashi(@Valid@RequestBody DeleteCashiRequest request) throws Exception {
-        Mgni mgni = transferService.deleteCashi(request);
-        return mgni;
+    public DeleteResponse deleteCashi(@Valid@RequestBody DeleteCashiRequest request) throws Exception {
+        DeleteResponse response = transferService.deleteCashi(request);
+        return response;
     }
 
     @DeleteMapping("/{id}")
