@@ -1,16 +1,16 @@
 package com.example.MGN_Schema.service;
 
-import com.example.MGN_Schema.controller.dto.request.DepositRequest;
 import com.example.MGN_Schema.controller.dto.request.DeleteCashiRequest;
+import com.example.MGN_Schema.controller.dto.request.DepositRequest;
 import com.example.MGN_Schema.controller.dto.request.SearchMgniRequest;
 import com.example.MGN_Schema.controller.dto.request.UpdateCashiRequest;
 import com.example.MGN_Schema.controller.dto.response.DeleteResponse;
-import com.example.MGN_Schema.model.entity.CashiAccAmt;
 import com.example.MGN_Schema.controller.dto.response.MgniListResponse;
 import com.example.MGN_Schema.controller.dto.response.StatusResponse;
 import com.example.MGN_Schema.model.CashiRepository;
 import com.example.MGN_Schema.model.MgniRepository;
 import com.example.MGN_Schema.model.entity.Cashi;
+import com.example.MGN_Schema.model.entity.CashiAccAmt;
 import com.example.MGN_Schema.model.entity.Mgni;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -64,7 +64,6 @@ public class TransferService {
 
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashi.setAmt(request.getAmt());
-//        cashiRepository.save(cashi);
 
         Mgni mgni = mgniRepository.findMgniById(request.getMgniId());
         mgni.setAmt(countAmt(mgni.getCashiList()));
@@ -120,8 +119,7 @@ public class TransferService {
         checkCashiExist(request.getMgniId(), request.getAccNo(), request.getCcy());
         Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
         cashiRepository.delete(cashi);
-        if(cashiRepository.findCashiListById(request.getMgniId()).isEmpty()){
-            mgniRepository.deleteById(request.getMgniId());
+        if(checkCashiExist(request.getMgniId())==false){
             return new DeleteResponse("Cashi已全部刪除，無資料",null);
         }
         Mgni mgni = mgniRepository.findMgniById(request.getMgniId());
@@ -133,7 +131,6 @@ public class TransferService {
 
     public StatusResponse deleteMgni(String id) throws Exception {
         checkMgniExist(id);
-//        cashiRepository.deleteCashiById(id);
         mgniRepository.deleteById(id);
         return new StatusResponse("刪除成功");
     }
@@ -173,7 +170,7 @@ public class TransferService {
             }
             Cashi cashi = setCashiInfo(mgni, targetAcc, amt);
             cashiList.add(cashi);
-//            cashiRepository.save(cashi);
+
             totalAmt = totalAmt.add(amt);
         }
         mgni.setCashiList(cashiList);
@@ -221,6 +218,14 @@ public class TransferService {
         }
         return true;
     }
+    private Boolean checkCashiExist(String id){
+        if(cashiRepository.findCashiListById(id).isEmpty()){
+            mgniRepository.deleteById(id);
+            return false;
+        }
+        return true;
+    }
+
 }
 
 

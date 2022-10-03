@@ -15,8 +15,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@XmlRootElement()
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD) //表明哪些可以被轉化為xml
 public class MgniListResponse {
     List<Mgni> mgniList;
 }

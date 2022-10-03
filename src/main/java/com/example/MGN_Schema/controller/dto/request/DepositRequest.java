@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.util.List;
@@ -39,6 +40,7 @@ public class DepositRequest {
         @Pattern(regexp = "^$|[0-9]{0,21}",message = "代碼長度上限為 21")
         private String bicaccNo;
         @NotEmpty
+        @Valid
         private List<CashiAccAmt> accAmt;
         //        @NotEmpty
 //        @Pattern(regexp = "^$|(1234)",message = "請輸入代碼：1~4")
