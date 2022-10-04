@@ -18,7 +18,7 @@ public class ErrorResponse {
 
     private String error;
 
-    // 處理 RequestBody 未通過基礎檢核所拋的 MethodArgumentNotValidException
+    // 處理 RequestBody
     public ErrorResponse(MethodArgumentNotValidException e) {
 
         this.fieldError = new ArrayList<>();
@@ -33,17 +33,17 @@ public class ErrorResponse {
             // 欄位名稱
             fieldMap.put("fiels", m.getField());
 
-            // 錯誤類型，例 : NotNull 或是 NotBlank
+            // 錯誤類型
             fieldMap.put("code", m.getCode());
 
-            // 錯誤訊息，例 : 年齡不可為空
+            // 錯誤訊息
             fieldMap.put("message", m.getDefaultMessage());
 
             fieldError.add(fieldMap);
         });
     }
 
-    // 處理 Query String 未通過基礎檢核所拋的 ConstraintViolationException
+    // 處理 Query String
     public ErrorResponse(ConstraintViolationException e) {
 
         this.fieldError = new ArrayList<>();
@@ -54,21 +54,22 @@ public class ErrorResponse {
 
         e.getConstraintViolations().stream().forEach(c -> {
 
-            String fieldName = null;
-//LeafNode
+            String fieldName = "";
+            //LeafNode //nodeList
             for (Path.Node node : c.getPropertyPath()) {
                 fieldName = node.getName();
             }
 
             Map<String, String> map = new HashMap<>();
-            // 錯誤類型，例 : NotNull 或是 NotBlank
-            map.put("code", c.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
-
-            // 錯誤訊息，例 : 年齡不可為空
-            map.put("message", c.getMessage());
 
             // 欄位名稱
             map.put("field", fieldName);
+
+            // 錯誤類型
+            map.put("code", c.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
+
+            // 錯誤訊息
+            map.put("message", c.getMessage());
 
             fieldError.add(map);
         });

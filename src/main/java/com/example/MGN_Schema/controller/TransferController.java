@@ -16,13 +16,12 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @RestController
-@Validated
 @RequestMapping("/api/v1/mgni")
 @RequiredArgsConstructor
 public class TransferController {
     private final TransferService transferService;
 
-    @GetMapping(produces = {"application/xml","application/json"})
+    @GetMapping(produces = {"application/xml", "application/json"})
     public MgniListResponse getAllMgni() throws Exception {
         MgniListResponse response = transferService.getAllMgni();
         return response;
@@ -35,15 +34,15 @@ public class TransferController {
     }
 
     @PutMapping("/{id}")
-    public Mgni updateMgni(@PathVariable @NotEmpty @Pattern(regexp = "^$|(MGI[0-9]{17})",message = "ID格式請輸入：GMI + 17位數字")String id,
-                                     @Valid @RequestBody DepositRequest request) throws Exception {
+    public Mgni updateMgni(@PathVariable @NotEmpty @Pattern(regexp = "^$|(MGI[0-9]{17})", message = "ID格式請輸入：GMI + 17位數字") String id,
+                           @Valid @RequestBody DepositRequest request) throws Exception {
         Mgni mgni = transferService.updateMgni(id, request);
         return mgni;
     }
 
 
     @PostMapping("/search/{page}")
-    public List<Mgni> searchTargetMgni(@PathVariable @Pattern(regexp = "^$|[0-9]+", message = "請輸入數字")String page,
+    public List<Mgni> searchTargetMgni(@PathVariable @Pattern(regexp = "^$|[0-9]+", message = "請輸入數字") String page,
                                        @Valid @RequestBody SearchMgniRequest request) throws Exception {
         List<Mgni> mgniList = transferService.searchTargetMgni(request, page);
         return mgniList;
@@ -56,21 +55,15 @@ public class TransferController {
     }
 
     @DeleteMapping("/cashi")
-    public DeleteResponse deleteCashi(@Valid@RequestBody DeleteCashiRequest request) throws Exception {
+    public DeleteResponse deleteCashi(@Valid @RequestBody DeleteCashiRequest request) throws Exception {
         DeleteResponse response = transferService.deleteCashi(request);
         return response;
     }
 
     @DeleteMapping("/{id}")
-    public StatusResponse deleteMgni( @PathVariable @NotEmpty @Pattern(regexp = "^$|(MGI[0-9]{17})",message = "ID格式請輸入：GMI + 17位數字") String id) throws Exception {
+    public StatusResponse deleteMgni(@PathVariable @NotEmpty @Pattern(regexp = "^$|(MGI[0-9]{17})", message = "ID格式請輸入：GMI + 17位數字") String id) throws Exception {
         StatusResponse response = transferService.deleteMgni(id);
         return response;
     }
 
 }
-
-//    @PostMapping("/cashi/search")
-//    public Cashi getTargetCashi(@RequestBody CashiPKRequest request) {
-//        Cashi cashi = transferService.searchTargetCashi(request);
-//        return cashi;
-//    }

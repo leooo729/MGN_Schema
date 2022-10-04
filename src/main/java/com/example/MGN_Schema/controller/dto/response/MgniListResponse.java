@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
@@ -16,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD) //表明哪些可以被轉化為xml
 public class MgniListResponse {
     List<Mgni> mgniList;
 }

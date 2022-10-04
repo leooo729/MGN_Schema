@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "CASHI")
 @IdClass(CashiRelationPK.class)
-public class Cashi {
+public class Cashi
+{
     @Id
     @Column(name = "CASHI_MGNI_ID")
     private String mgniId;
@@ -28,4 +29,8 @@ public class Cashi {
     private String ccy;
     @Column(name = "CASHI_AMT")
     private BigDecimal amt;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "CASHI_MGNI_ID")
+    private Mgni mgni;
 }

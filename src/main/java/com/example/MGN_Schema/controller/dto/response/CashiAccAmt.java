@@ -1,4 +1,4 @@
-package com.example.MGN_Schema.model.entity;
+package com.example.MGN_Schema.controller.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

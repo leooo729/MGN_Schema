@@ -1,5 +1,6 @@
 package com.example.MGN_Schema.model.entity;
 
+import com.example.MGN_Schema.adapter.DateAdapter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

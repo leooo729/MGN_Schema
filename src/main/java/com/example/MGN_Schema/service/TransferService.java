@@ -10,7 +10,7 @@ import com.example.MGN_Schema.controller.dto.response.StatusResponse;
 import com.example.MGN_Schema.model.CashiRepository;
 import com.example.MGN_Schema.model.MgniRepository;
 import com.example.MGN_Schema.model.entity.Cashi;
-import com.example.MGN_Schema.model.entity.CashiAccAmt;
+import com.example.MGN_Schema.controller.dto.response.CashiAccAmt;
 import com.example.MGN_Schema.model.entity.Mgni;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class TransferService {
-
     final private MgniRepository mgniRepository;
     final private CashiRepository cashiRepository;
 
@@ -227,9 +226,3 @@ public class TransferService {
     }
 
 }
-
-
-//    public Cashi searchTargetCashi(CashiPKRequest request) {
-//        Cashi cashi = cashiRepository.findTargetCashi(request.getMgniId(), request.getAccNo(), request.getCcy());
-//        return cashi;
-//    }

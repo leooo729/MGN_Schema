@@ -1,6 +1,6 @@
 package com.example.MGN_Schema.controller.dto.request;
 
-import com.example.MGN_Schema.model.entity.CashiAccAmt;
+import com.example.MGN_Schema.controller.dto.response.CashiAccAmt;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+//@Validated
+
 public class DepositRequest {
 //        private String id;
 //        private LocalDateTime time;
@@ -48,7 +50,7 @@ public class DepositRequest {
         //private String pReason;
         //private BigDecimal amt;
         @NotEmpty
-        @Pattern(regexp = "^$|[A-Za-z\\u4e00-\\u9fa5]{0,120}",message = "代碼長度上限為 120")
+        @Pattern(regexp = "^$|[A-Za-z\\u4e00-\\u9fa5]{0,120}",message = "名字長度超過範圍")
         private String ctName;
 
         @NotEmpty
