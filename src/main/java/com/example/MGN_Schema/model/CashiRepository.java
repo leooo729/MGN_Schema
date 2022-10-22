@@ -5,9 +5,10 @@ import com.example.MGN_Schema.model.entity.CashiRelationPK;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface CashiRepository extends JpaRepository<Cashi, CashiRelationPK> {
     @Query(value = "select * from CASHI where CASHI_MGNI_ID =?1 and CASHI_ACC_NO =?2 and CASHI_CCY =?3", nativeQuery = true)
     Cashi findTargetCashi(String mgniId, String accNo, String ccy);

@@ -30,7 +30,7 @@ public class Cashi
     @Column(name = "CASHI_AMT")
     private BigDecimal amt;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinColumn(name = "CASHI_MGNI_ID")
-    private Mgni mgni;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "mgni_id")
+//    private Mgni mgni;
 }

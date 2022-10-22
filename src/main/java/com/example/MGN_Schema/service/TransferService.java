@@ -72,10 +72,50 @@ public class TransferService {
     }
 
 
-    public Mgni updateMgni(String id, DepositRequest request) throws Exception {
-        checkMgniExist(id);
-        Mgni mgni = mgniRepository.findMgniById(id);
-        mgni = setDepositInfo(mgni, request);
+//    public Mgni updateMgni(String id, DepositRequest request) throws Exception {
+//        checkMgniExist(id);
+//        Mgni mgni = mgniRepository.findMgniById(id);
+//        cashiRepository.deleteCashiById(id);
+//
+//        mgni = setDepositInfo(mgni, request);
+//        mgniRepository.save(mgni);
+//        return mgni;
+//    }
+
+    public Mgni updateMgni(String id,DepositRequest request) throws Exception {
+                checkMgniExist(id);
+        cashiRepository.deleteCashiById(id);
+        return setMgni(id, request);
+    }
+    public Mgni setMgni(String id, DepositRequest request) {
+        Mgni mgni=mgniRepository.findMgniById(id);
+        {
+            mgni.setId(id);
+            mgni.setType("1");
+            mgni.setCmNo(request.getCmNo());
+            mgni.setKacType(request.getKacType());
+            mgni.setBankNo(request.getBankNo());
+            mgni.setCcy(request.getCcy());
+            mgni.setPvType("1");
+            mgni.setBicaccNo(request.getBicaccNo());
+            mgni.setCtName(request.getCtName());
+            mgni.setCtTel(request.getCtTel());
+            mgni.setStatus("0");
+
+            List<String> accList = request.getAccAmt().stream().map(m -> m.getAcc()).distinct().collect(Collectors.toList());
+            BigDecimal totalAmt = new BigDecimal(0);
+            for (String targetAcc : accList) {
+                BigDecimal amt = new BigDecimal(0);
+                for (CashiAccAmt cashiAccAmt : request.getAccAmt()) {
+                    if (cashiAccAmt.getAcc().equals(targetAcc)) {
+                        amt = amt.add(cashiAccAmt.getAmt());
+                    }
+                }
+                Cashi cashi = setCashiInfo(mgni.getId(),targetAcc,request.getCcy(), amt);
+                totalAmt = totalAmt.add(amt);
+            }
+            mgni.setAmt(totalAmt);
+        }
         mgniRepository.save(mgni);
         return mgni;
     }
@@ -136,9 +176,6 @@ public class TransferService {
 
     //----------------------------------------------------------------Method
     private Mgni setDepositInfo(Mgni mgni, DepositRequest request) throws Exception {
-        if (mgniRepository.findMgniById(mgni.getId()) != null) {
-            cashiRepository.deleteCashiById(mgni.getId());
-        }
         mgni.setType("1");
         mgni.setCmNo(request.getCmNo());
         mgni.setKacType(request.getKacType());
@@ -153,7 +190,6 @@ public class TransferService {
         mgni.setStatus("1");
 
         List<String> accList = request.getAccAmt().stream().map(m -> m.getAcc()).distinct().collect(Collectors.toList());
-
         if (request.getKacType().equals("2") && accList.size() > 1) {
             throw new Exception("存入保管專戶別為交割結算基金專戶時，只能存入一筆總金額");
         }
@@ -167,7 +203,7 @@ public class TransferService {
                     amt = amt.add(cashiAccAmt.getAmt());
                 }
             }
-            Cashi cashi = setCashiInfo(mgni, targetAcc, amt);
+            Cashi cashi = setCashiInfo(mgni.getId(),targetAcc,request.getCcy(), amt);
             cashiList.add(cashi);
 
             totalAmt = totalAmt.add(amt);
@@ -178,12 +214,13 @@ public class TransferService {
         return mgni;
     }
 
-    private Cashi setCashiInfo(Mgni mgni, String acc, BigDecimal amt) {
+    private Cashi setCashiInfo(String id, String acc,String ccy, BigDecimal amt) {
         Cashi cashi = new Cashi();
-        cashi.setMgniId(mgni.getId());
+        cashi.setMgniId(id);
         cashi.setAccNo(acc);
-        cashi.setCcy(mgni.getCcy());
+        cashi.setCcy(ccy);
         cashi.setAmt(amt);
+        cashiRepository.save(cashi);
         return cashi;
     }
 
